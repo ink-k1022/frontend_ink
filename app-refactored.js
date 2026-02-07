@@ -29,9 +29,19 @@ document.addEventListener('DOMContentLoaded', async function() {
             await googleMapsService.initialize('map');
             CONFIG.log('地圖初始化完成');
         } catch (mapError) {
-            CONFIG.error('地圖初始化失敗，但應用程式將繼續運行:', mapError);
-            // 顯示地圖錯誤提示，但不中斷應用程式
-            updateLocationStatus('地圖載入失敗，部分功能受限', '⚠️');
+            CONFIG.log('地圖初始化失敗，應用程式將以模擬資料模式運行:', mapError.message);
+            // 在地圖容器中顯示提示訊息
+            const mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                mapContainer.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f0f4f8; color: #64748b; padding: 20px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">地圖功能未啟用</div>
+                        <div style="font-size: 14px;">應用程式以模擬資料模式運行</div>
+                        <div style="font-size: 12px; margin-top: 12px; opacity: 0.7;">所有其他功能正常運作</div>
+                    </div>
+                `;
+            }
         }
         
         // 請求使用者位置

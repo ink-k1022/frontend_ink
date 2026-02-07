@@ -48,7 +48,7 @@ const CONFIG = {
     
     // 開發模式設定
     DEV: {
-        ENABLE_MOCK_DATA: true,      // 是否啟用模擬資料
+        ENABLE_MOCK_DATA: false,     // 是否啟用模擬資料
         ENABLE_CONSOLE_LOG: true,    // 是否顯示 console.log
         ENABLE_API_CACHE: true       // 是否啟用 API 快取
     }
