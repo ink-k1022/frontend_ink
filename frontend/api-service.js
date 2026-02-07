@@ -135,25 +135,29 @@ class ApiService {
      * @param {number} params.limit - 結果數量限制（可選）
      */
     async getVenues(params) {
-        const queryParams = new URLSearchParams();
-        
         // 必填參數
         if (!params.lat || !params.lng) {
             throw new Error('缺少必要的位置參數（lat, lng）');
         }
-        
-        queryParams.append('lat', params.lat);
-        queryParams.append('lng', params.lng);
-        queryParams.append('radius', params.radius || CONFIG.APP.DEFAULT_RADIUS);
-        
-        // 可選參數
-        if (params.category) queryParams.append('category', params.category);
-        if (params.minRating) queryParams.append('minRating', params.minRating);
-        if (params.openNow !== undefined) queryParams.append('openNow', params.openNow);
-        if (params.limit) queryParams.append('limit', params.limit);
 
-        const endpoint = `${CONFIG.API.ENDPOINTS.GET_VENUES}?${queryParams.toString()}`;
-        return await this.request(endpoint);
+        const body = {
+            lat: params.lat,
+            lng: params.lng,
+            radius_m: params.radius || CONFIG.APP.DEFAULT_RADIUS,
+            max_result_count: Math.min(params.limit || CONFIG.APP.MAX_RESULTS, 20)
+        };
+
+        if (params.category) {
+            body.included_types = [this.mapCategoryToPlaceType(params.category)];
+        }
+
+        const response = await this.request(CONFIG.API.ENDPOINTS.PLACES_NEARBY, {
+            method: 'POST',
+            body,
+            useCache: false
+        });
+
+        return this.normalizePlacesResponse(response);
     }
 
     /**
@@ -166,11 +170,25 @@ class ApiService {
      * @param {Object} searchData.filters - 其他篩選條件
      */
     async searchVenues(searchData) {
-        return await this.request(CONFIG.API.ENDPOINTS.SEARCH_VENUES, {
-            method: 'POST',
-            body: searchData,
-            useCache: false
+        const response = await this.getVenues({
+            lat: searchData.lat,
+            lng: searchData.lng,
+            radius: searchData.radius,
+            category: searchData.filters?.category,
+            limit: CONFIG.APP.MAX_RESULTS
         });
+
+        if (!response.success || !Array.isArray(response.data)) {
+            return response;
+        }
+
+        const query = (searchData.query || '').toLowerCase();
+        const filtered = response.data.filter(v => v.name.toLowerCase().includes(query));
+
+        return {
+            success: true,
+            data: filtered
+        };
     }
 
     /**
@@ -181,6 +199,85 @@ class ApiService {
         return await this.request(CONFIG.API.ENDPOINTS.GET_VENUE_DETAIL, {
             params: { id: venueId }
         });
+    }
+
+    // ==================== Places 回應轉換 ====================
+    normalizePlacesResponse(response) {
+        const places = response?.data?.places || [];
+        const venues = places
+            .map(place => this.normalizePlace(place))
+            .filter(v => v && v.lat !== null && v.lng !== null);
+
+        return {
+            success: true,
+            data: venues
+        };
+    }
+
+    normalizePlace(place) {
+        if (!place) return null;
+
+        const location = place.location || {};
+        const lat = typeof location.latitude === 'number' ? location.latitude : null;
+        const lng = typeof location.longitude === 'number' ? location.longitude : null;
+        const category = this.mapPlaceToCategory(place);
+
+        return {
+            id: place.id || place.name || `${lat},${lng}`,
+            name: place.displayName?.text || '未知店家',
+            category: category,
+            lat,
+            lng,
+            rating: typeof place.rating === 'number' ? place.rating : 0,
+            reviewCount: typeof place.userRatingCount === 'number' ? place.userRatingCount : 0,
+            isOpen: place.currentOpeningHours?.openNow ?? null,
+            address: place.formattedAddress || '',
+            phone: place.nationalPhoneNumber || place.internationalPhoneNumber || '',
+            hours: place.currentOpeningHours
+                ? (place.currentOpeningHours.openNow ? '營業中' : '休息中')
+                : '營業時間未知'
+        };
+    }
+
+    mapCategoryToPlaceType(category) {
+        const mapping = {
+            restaurant: 'restaurant',
+            cafe: 'cafe',
+            convenience: 'convenience_store',
+            gas: 'gas_station',
+            salon: 'beauty_salon',
+            pharmacy: 'pharmacy',
+            bakery: 'bakery',
+            gym: 'gym',
+            bookstore: 'book_store'
+        };
+        return mapping[category] || category;
+    }
+
+    mapPlaceToCategory(place) {
+        const mapping = {
+            restaurant: 'restaurant',
+            cafe: 'cafe',
+            convenience_store: 'convenience',
+            gas_station: 'gas',
+            beauty_salon: 'salon',
+            hair_care: 'salon',
+            pharmacy: 'pharmacy',
+            bakery: 'bakery',
+            gym: 'gym',
+            book_store: 'bookstore'
+        };
+
+        const candidates = [
+            place.primaryType,
+            ...(Array.isArray(place.types) ? place.types : [])
+        ].filter(Boolean);
+
+        for (const type of candidates) {
+            if (mapping[type]) return mapping[type];
+        }
+
+        return candidates[0] || 'other';
     }
 
     // ==================== 使用者相關 API（可選）====================

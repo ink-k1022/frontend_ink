@@ -199,12 +199,9 @@ class GoogleMapsService {
                 <div style="color: #64748b; font-size: 14px; margin-bottom: 8px;">
                     📍 ${this.formatDistance(venue.distance)}
                 </div>
-                ${venue.isOpen ? 
-                    '<span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 12px;">營業中</span>' : 
-                    '<span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 12px;">休息中</span>'
-                }
+                ${this.getOpenStatusBadge(venue)}
                 <div style="margin-top: 12px;">
-                    <button onclick="showVenueDetails(${venue.id})" style="
+                    <button onclick="showVenueDetails('${venue.id}')" style="
                         width: 100%;
                         padding: 8px;
                         background: #2563eb;
@@ -292,6 +289,16 @@ class GoogleMapsService {
         } else {
             return (meters / 1000).toFixed(1) + ' 公里';
         }
+    }
+
+    getOpenStatusBadge(venue) {
+        if (venue.isOpen === true) {
+            return '<span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 12px;">營業中</span>';
+        }
+        if (venue.isOpen === false) {
+            return '<span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 12px;">休息中</span>';
+        }
+        return '<span style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 12px;">營業狀態未知</span>';
     }
 
     /**

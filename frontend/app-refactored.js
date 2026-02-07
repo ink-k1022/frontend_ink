@@ -6,8 +6,8 @@ let currentWeights = {
     rating: 50
 };
 let currentFilters = {
-    radius: 1000,
-    minRating: 4,
+    radius: CONFIG.APP.DEFAULT_RADIUS,
+    minRating: CONFIG.APP.DEFAULT_MIN_RATING,
     openNow: false,
     category: null,
     searchQuery: ''
@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // 初始化權重顯示
         updateWeightDisplays();
+
+        // 同步篩選器預設值
+        const radiusFilter = document.getElementById('radiusFilter');
+        if (radiusFilter) {
+            radiusFilter.value = String(currentFilters.radius);
+        }
         
         // 初始化 Google Maps（可能失敗，但不影響其他功能）
         try {
@@ -397,6 +403,15 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 // ==================== 篩選與排序 ====================
 function filterAndSortVenues() {
     let filtered = venues.filter(venue => {
+        if (!venue.distance && currentLocation) {
+            venue.distance = calculateDistance(
+                currentLocation.lat,
+                currentLocation.lng,
+                venue.lat,
+                venue.lng
+            );
+        }
+
         // 距離篩選（已由後端處理，這裡再次確認）
         if (venue.distance > currentFilters.radius) return false;
         
@@ -404,7 +419,7 @@ function filterAndSortVenues() {
         if (venue.rating < currentFilters.minRating) return false;
         
         // 營業狀態篩選
-        if (currentFilters.openNow && !venue.isOpen) return false;
+        if (currentFilters.openNow && venue.isOpen !== true) return false;
         
         // 分類篩選（已由後端處理，這裡再次確認）
         if (currentFilters.category && venue.category !== currentFilters.category) return false;
@@ -488,7 +503,7 @@ function renderResultsList(venues) {
     }
     
     listContainer.innerHTML = venues.map((venue, index) => `
-        <div class="result-card" data-id="${venue.id}" onclick="showVenueDetails(${venue.id})">
+        <div class="result-card" data-id="${venue.id}" onclick="showVenueDetails('${venue.id}')">
             <div class="result-rank">${index + 1}</div>
             <h3 class="result-name">${venue.name}</h3>
             <span class="result-category">${getCategoryName(venue.category)}</span>
@@ -502,7 +517,7 @@ function renderResultsList(venues) {
             <div class="result-distance">
                 <span>📍</span>
                 <span>${formatDistance(venue.distance)}</span>
-                ${venue.isOpen ? '<span class="badge badge-success">營業中</span>' : '<span class="badge badge-error">休息中</span>'}
+                ${getOpenStatusBadge(venue)}
             </div>
             
             <div class="result-score">
@@ -533,18 +548,10 @@ async function showVenueDetails(venueId) {
     try {
         showLoading(true, '正在載入詳情...');
         
-        // 從 API 取得詳細資料
-        const response = await apiService.getVenueDetail(venueId);
-        
-        let venue;
-        if (response.success) {
-            venue = response.data;
-        } else {
-            // 如果 API 失敗，使用本地資料
-            venue = venues.find(v => v.id === venueId);
-            if (!venue) {
-                throw new Error('找不到店家資料');
-            }
+        // 使用本地列表資料
+        const venue = venues.find(v => String(v.id) === String(venueId));
+        if (!venue) {
+            throw new Error('找不到店家資料');
         }
         
         const modal = document.getElementById('detailModal');
@@ -555,7 +562,7 @@ async function showVenueDetails(venueId) {
                 <h2 class="detail-name">${venue.name}</h2>
                 <div class="detail-meta">
                     <span class="result-category">${getCategoryName(venue.category)}</span>
-                    ${venue.isOpen ? '<span class="badge badge-success">營業中</span>' : '<span class="badge badge-error">休息中</span>'}
+                    ${getOpenStatusBadge(venue)}
                 </div>
             </div>
             
@@ -633,7 +640,7 @@ async function showVenueDetails(venueId) {
                     <span>🗺️</span>
                     導航
                 </button>
-                <button class="action-btn" onclick="shareVenue(${venue.id})">
+                <button class="action-btn" onclick="shareVenue('${venue.id}')">
                     <span>📤</span>
                     分享
                 </button>
@@ -704,13 +711,23 @@ function getCategoryName(category) {
     return categories[category] || category;
 }
 
+function getOpenStatusBadge(venue) {
+    if (venue.isOpen === true) {
+        return '<span class="badge badge-success">營業中</span>';
+    }
+    if (venue.isOpen === false) {
+        return '<span class="badge badge-error">休息中</span>';
+    }
+    return '<span class="badge badge-neutral">營業狀態未知</span>';
+}
+
 function openGoogleMaps(lat, lng) {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, '_blank');
 }
 
 function shareVenue(venueId) {
-    const venue = venues.find(v => v.id === venueId);
+    const venue = venues.find(v => String(v.id) === String(venueId));
     if (!venue) return;
     
     const text = `推薦你這家店：${venue.name}\n評分：${venue.rating}★ (${venue.reviewCount}則評論)\n距離：${formatDistance(venue.distance)}`;
