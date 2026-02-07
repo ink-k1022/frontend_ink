@@ -53,6 +53,12 @@ class GoogleMapsService {
 
             // 檢查 API Key
             if (!CONFIG.GOOGLE_MAPS.API_KEY || CONFIG.GOOGLE_MAPS.API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
+                // 如果啟用模擬資料模式，不需要真實的 Google Maps
+                if (CONFIG.DEV.ENABLE_MOCK_DATA) {
+                    CONFIG.log('模擬資料模式：跳過 Google Maps API 載入');
+                    reject(new Error('模擬資料模式：不載入 Google Maps API'));
+                    return;
+                }
                 reject(new Error('請在 config.js 中設定 Google Maps API Key'));
                 return;
             }
