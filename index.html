@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能在地服務推薦系統 - 懂你位置、更懂品質</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 頂部導航欄 -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">📍</span>
+                    智能在地搜尋
+                </h1>
+                <div class="header-subtitle">懂你位置、更懂品質的口袋搜尋助手</div>
+            </div>
+        </header>
+
+        <!-- 主要內容區 -->
+        <main class="main-content">
+            <!-- 左側控制面板 -->
+            <aside class="control-panel">
+                <!-- 搜尋區塊 -->
+                <div class="search-section card">
+                    <h2 class="section-title">搜尋服務</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="搜尋餐廳、咖啡廳、商店..." class="search-input">
+                        <button id="searchBtn" class="btn btn-primary">
+                            <span class="btn-icon">🔍</span>
+                            搜尋
+                        </button>
+                    </div>
+                    
+                    <!-- 服務類型快速篩選 -->
+                    <div class="category-filters">
+                        <h3 class="filter-title">熱門分類</h3>
+                        <div class="category-chips">
+                            <button class="chip" data-category="restaurant">🍽️ 餐廳</button>
+                            <button class="chip" data-category="cafe">☕ 咖啡廳</button>
+                            <button class="chip" data-category="convenience">🏪 便利商店</button>
+                            <button class="chip" data-category="gas">⛽ 加油站</button>
+                            <button class="chip" data-category="salon">💇 美髮</button>
+                            <button class="chip" data-category="pharmacy">💊 藥局</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 權重控制區塊 -->
+                <div class="weight-control card">
+                    <h2 class="section-title">智能排序設定</h2>
+                    <div class="weight-description">
+                        調整距離與評價的重要性，找到最適合您的店家
+                    </div>
+                    
+                    <div class="weight-slider-group">
+                        <div class="slider-container">
+                            <label class="slider-label">
+                                <span class="label-icon">📏</span>
+                                距離權重 (W<sub>d</sub>)
+                                <span class="weight-value" id="distanceWeightValue">50%</span>
+                            </label>
+                            <input type="range" id="distanceWeight" min="0" max="100" value="50" class="slider">
+                            <div class="slider-hint">數值越高，越優先顯示近的店家</div>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <label class="slider-label">
+                                <span class="label-icon">⭐</span>
+                                評價權重 (W<sub>r</sub>)
+                                <span class="weight-value" id="ratingWeightValue">50%</span>
+                            </label>
+                            <input type="range" id="ratingWeight" min="0" max="100" value="50" class="slider">
+                            <div class="slider-hint">數值越高，越優先顯示高評價店家</div>
+                        </div>
+                    </div>
+
+                    <!-- 快速模式 -->
+                    <div class="quick-modes">
+                        <h3 class="filter-title">快速模式</h3>
+                        <div class="mode-buttons">
+                            <button class="mode-btn" data-mode="distance">
+                                <span class="mode-icon">🚀</span>
+                                <span class="mode-name">距離優先</span>
+                                <span class="mode-desc">最近最快</span>
+                            </button>
+                            <button class="mode-btn" data-mode="balanced">
+                                <span class="mode-icon">⚖️</span>
+                                <span class="mode-name">智能平衡</span>
+                                <span class="mode-desc">綜合推薦</span>
+                            </button>
+                            <button class="mode-btn active" data-mode="quality">
+                                <span class="mode-icon">🏆</span>
+                                <span class="mode-name">品質優先</span>
+                                <span class="mode-desc">高分首選</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 篩選條件 -->
+                <div class="filter-section card">
+                    <h2 class="section-title">進階篩選</h2>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">搜尋半徑</label>
+                        <select id="radiusFilter" class="filter-select">
+                            <option value="500">500 公尺內</option>
+                            <option value="1000" selected>1 公里內</option>
+                            <option value="2000">2 公里內</option>
+                            <option value="5000">5 公里內</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">最低評分</label>
+                        <select id="minRatingFilter" class="filter-select">
+                            <option value="0">不限</option>
+                            <option value="3">3 星以上</option>
+                            <option value="3.5">3.5 星以上</option>
+                            <option value="4" selected>4 星以上</option>
+                            <option value="4.5">4.5 星以上</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <input type="checkbox" id="openNowFilter" class="filter-checkbox">
+                            <span>僅顯示營業中</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 結果統計 -->
+                <div class="stats-section card">
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalResults">0</div>
+                            <div class="stat-label">找到店家</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="avgDistance">-</div>
+                            <div class="stat-label">平均距離</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="avgRating">-</div>
+                            <div class="stat-label">平均評分</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 中間地圖區域 -->
+            <section class="map-section">
+                <div id="map" class="map-container"></div>
+                <div class="map-controls">
+                    <button id="locateBtn" class="map-control-btn" title="定位我的位置">
+                        <span class="control-icon">🎯</span>
+                    </button>
+                    <button id="refreshBtn" class="map-control-btn" title="重新搜尋">
+                        <span class="control-icon">🔄</span>
+                    </button>
+                </div>
+                <div class="location-status" id="locationStatus">
+                    <span class="status-icon">📍</span>
+                    <span class="status-text">正在定位中...</span>
+                </div>
+            </section>
+
+            <!-- 右側結果列表 -->
+            <aside class="results-panel">
+                <div class="results-header">
+                    <h2 class="section-title">推薦店家</h2>
+                    <div class="sort-controls">
+                        <select id="sortBy" class="sort-select">
+                            <option value="score">智能排序</option>
+                            <option value="distance">距離排序</option>
+                            <option value="rating">評分排序</option>
+                            <option value="reviews">評論數排序</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="results-list" id="resultsList">
+                    <!-- 結果卡片將動態插入這裡 -->
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-title">開始探索周邊店家</div>
+                        <div class="empty-text">請允許位置權限或使用搜尋功能</div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- 店家詳情彈窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <div id="modalBody">
+                <!-- 詳情內容將動態插入 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入中覆蓋層 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">正在搜尋附近店家...</div>
+    </div>
+
+    <!-- 配置文件（必須最先載入）-->
+    <script src="config.js"></script>
+    
+    <!-- 服務層 -->
+    <script src="api-service.js"></script>
+    <script src="google-maps-service.js"></script>
+    
+    <!-- 主應用程式 -->
+    <script src="app-refactored.js"></script>
+</body>
+</html>

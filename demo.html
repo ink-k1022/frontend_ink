@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>演示頁面 - 智能在地服務推薦系統</title>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        h1 { color: #2563eb; }
+        .demo-box {
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px 10px 10px 0;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .feature {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .feature::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            margin-left: -25px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 智能在地服務推薦系統</h1>
+    
+    <div class="demo-box">
+        <h2>📍 系統簡介</h2>
+        <p>這是一個基於地理圍欄技術的智能搜尋引擎，結合距離與評價的多維權重演算法，幫您找到周邊最合適的店家。</p>
+    </div>
+
+    <h2>✨ 核心特色</h2>
+    <div class="feature">精準定位：自動感應位置，即時搜尋周邊店家</div>
+    <div class="feature">智能排序：動態平衡距離與評價</div>
+    <div class="feature">權重調整：自由調整優先級滿足不同需求</div>
+    <div class="feature">視覺化地圖：直觀顯示店家位置</div>
+    <div class="feature">多維篩選：分類、評分、營業狀態等多重條件</div>
+
+    <h2>🚀 快速開始</h2>
+    <a href="index.html" class="btn">🎯 開始使用系統</a>
+    <a href="README.md" class="btn" style="background: #10b981;">📖 閱讀文檔</a>
+    <a href="QUICKSTART.md" class="btn" style="background: #f59e0b;">⚡ 快速指南</a>
+
+    <div class="demo-box" style="margin-top: 40px;">
+        <h3>💡 使用提示</h3>
+        <p><strong>首次使用請允許位置權限</strong>，以獲得最佳體驗。系統會自動定位並顯示您周邊的優質店家。</p>
+        <p>支援三種模式：</p>
+        <ul>
+            <li><strong>🚀 距離優先</strong> - 適合緊急需求（加油站、超商）</li>
+            <li><strong>⚖️ 智能平衡</strong> - 綜合考量距離與評價</li>
+            <li><strong>🏆 品質優先</strong> - 找高評價的精緻服務</li>
+        </ul>
+    </div>
+
+    <h2>🎯 權重公式</h2>
+    <div class="demo-box">
+        <p><strong>Score = W<sub>d</sub> × 距離分數 + W<sub>r</sub> × (評價分數 + 評論數加成)</strong></p>
+        <p>其中：</p>
+        <ul>
+            <li>W<sub>d</sub> = 距離權重（0-100%）</li>
+            <li>W<sub>r</sub> = 評價權重（0-100%）</li>
+            <li>距離分數：越近分數越高（歸一化 0-1）</li>
+            <li>評價分數：星級評分轉換（0-1）</li>
+            <li>評論數加成：最高 20% 額外加分</li>
+        </ul>
+    </div>
+
+    <h2>📊 技術架構</h2>
+    <div class="demo-box">
+        <ul style="list-style: none; padding-left: 0;">
+            <li>🎨 <strong>前端</strong>: HTML5 + CSS3 + JavaScript (ES6+)</li>
+            <li>🗺️ <strong>地圖</strong>: Leaflet.js 1.9.4 + OpenStreetMap</li>
+            <li>📍 <strong>定位</strong>: Geolocation API</li>
+            <li>📐 <strong>演算法</strong>: Haversine 距離計算 + 權重評分系統</li>
+        </ul>
+    </div>
+
+    <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b;">
+        <p>💡 現在就開始探索周邊的優質店家吧！</p>
+    </footer>
+</body>
+</html>
