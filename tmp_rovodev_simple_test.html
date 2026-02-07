@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>簡單滑桿測試</title>
+</head>
+<body>
+    <h1>滑桿測試</h1>
+    
+    <div>
+        <label>距離權重: <span id="distanceWeightValue">50%</span></label><br>
+        <input type="range" id="distanceWeight" min="0" max="100" value="50">
+    </div>
+    
+    <div>
+        <label>評價權重: <span id="ratingWeightValue">50%</span></label><br>
+        <input type="range" id="ratingWeight" min="0" max="100" value="50">
+    </div>
+
+    <div id="debug" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+
+    <script>
+        let currentWeights = { distance: 50, rating: 50 };
+        const distanceWeight = document.getElementById('distanceWeight');
+        const ratingWeight = document.getElementById('ratingWeight');
+        const debug = document.getElementById('debug');
+        
+        function updateWeightDisplays() {
+            const dElem = document.getElementById('distanceWeightValue');
+            const rElem = document.getElementById('ratingWeightValue');
+            
+            console.log('updateWeightDisplays 被呼叫');
+            console.log('distanceWeightValue 元素:', dElem);
+            console.log('ratingWeightValue 元素:', rElem);
+            console.log('currentWeights:', currentWeights);
+            
+            if (dElem) {
+                dElem.textContent = currentWeights.distance + '%';
+                console.log('已更新距離顯示:', dElem.textContent);
+            } else {
+                console.error('找不到 distanceWeightValue 元素！');
+            }
+            
+            if (rElem) {
+                rElem.textContent = currentWeights.rating + '%';
+                console.log('已更新評價顯示:', rElem.textContent);
+            } else {
+                console.error('找不到 ratingWeightValue 元素！');
+            }
+            
+            debug.innerHTML = `
+                距離: ${currentWeights.distance}%<br>
+                評價: ${currentWeights.rating}%<br>
+                總和: ${currentWeights.distance + currentWeights.rating}%<br>
+                時間: ${new Date().toLocaleTimeString()}
+            `;
+        }
+        
+        distanceWeight.addEventListener('input', function(e) {
+            console.log('===== 距離滑桿 input 事件 =====');
+            console.log('e.target.value:', e.target.value);
+            
+            currentWeights.distance = parseInt(e.target.value);
+            currentWeights.rating = 100 - currentWeights.distance;
+            ratingWeight.value = currentWeights.rating;
+            
+            console.log('更新後的 currentWeights:', currentWeights);
+            updateWeightDisplays();
+        });
+        
+        ratingWeight.addEventListener('input', function(e) {
+            console.log('===== 評價滑桿 input 事件 =====');
+            console.log('e.target.value:', e.target.value);
+            
+            currentWeights.rating = parseInt(e.target.value);
+            currentWeights.distance = 100 - currentWeights.rating;
+            distanceWeight.value = currentWeights.distance;
+            
+            console.log('更新後的 currentWeights:', currentWeights);
+            updateWeightDisplays();
+        });
+        
+        // 初始化
+        console.log('===== 初始化 =====');
+        updateWeightDisplays();
+        console.log('初始化完成，請拖動滑桿');
+    </script>
+</body>
+</html>

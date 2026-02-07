@@ -20,6 +20,7 @@ let currentFilters = {
 document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     initializeEventListeners();
+    updateWeightDisplays();
     requestUserLocation();
     loadMockData();
 });

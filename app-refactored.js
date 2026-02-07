@@ -18,12 +18,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         showLoading(true, '正在初始化應用程式...');
         
-        // 初始化 Google Maps
-        await googleMapsService.initialize('map');
-        CONFIG.log('地圖初始化完成');
-        
-        // 初始化事件監聽器
+        // 初始化事件監聽器（優先執行，確保滑桿功能可用）
         initializeEventListeners();
+        
+        // 初始化權重顯示
+        updateWeightDisplays();
+        
+        // 初始化 Google Maps（可能失敗，但不影響其他功能）
+        try {
+            await googleMapsService.initialize('map');
+            CONFIG.log('地圖初始化完成');
+        } catch (mapError) {
+            CONFIG.error('地圖初始化失敗，但應用程式將繼續運行:', mapError);
+            // 顯示地圖錯誤提示，但不中斷應用程式
+            updateLocationStatus('地圖載入失敗，部分功能受限', '⚠️');
+        }
         
         // 請求使用者位置
         await requestUserLocation();
