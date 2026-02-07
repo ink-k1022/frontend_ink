@@ -16,22 +16,22 @@ const CONFIG = {
     
     // 後端 API 配置
     API: {
-        BASE_URL: 'http://localhost:3000/api', // 後端 API 地址（對應 FastAPI /api）
+        BASE_URL: 'https://scistapi.ryanisyyds.xyz', // 後端 API 地址（對應 FastAPI）
         ENDPOINTS: {
             // Places API (新版)
-            PLACES_NEARBY: '/places/nearby', // POST - 取得附近地點
+            PLACES_NEARBY: '/api/places/nearby', // POST - 取得附近地點
 
             // 服務相關
-            SERVICES_SEARCH: '/services/search',   // POST - 搜尋服務
-            GET_VENUE_DETAIL: '/services/:id',     // GET - 取得服務詳情
+            SERVICES_SEARCH: '/api/services/search',   // POST - 搜尋服務
+            GET_VENUE_DETAIL: '/api/services/:id',     // GET - 取得服務詳情
 
             // 評論相關
-            GET_REVIEWS: '/reviews/:id',           // GET - 取得評論
-            ADD_REVIEW: '/reviews',                // POST - 新增評論
+            GET_REVIEWS: '/api/reviews/:id',           // GET - 取得評論
+            ADD_REVIEW: '/api/reviews',                // POST - 新增評論
 
             // 使用者偏好（後端現有 API）
-            GET_USER_PREFERENCES: '/user-preferences/:user_id', // GET - 取得偏好
-            UPDATE_USER_PREFERENCES: '/user-preferences'        // PUT - 更新偏好
+            GET_USER_PREFERENCES: '/api/user-preferences/:user_id', // GET - 取得偏好
+            UPDATE_USER_PREFERENCES: '/api/user-preferences'        // PUT - 更新偏好
 
             // 注意：後端目前沒有 favorites 相關端點，如需使用請先擴充後端
         },

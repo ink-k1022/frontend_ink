@@ -140,6 +140,7 @@ class ApiService {
             throw new Error('缺少必要的位置參數（lat, lng）');
         }
 
+        // 使用 Google Places API（透過後端）
         const body = {
             lat: params.lat,
             lng: params.lng,
@@ -214,6 +215,45 @@ class ApiService {
         };
     }
 
+    /**
+     * 正規化 services/search API 回應
+     */
+    normalizeServicesResponse(response) {
+        if (!response || !response.success) {
+            return { success: false, data: [] };
+        }
+
+        const services = response.data || [];
+        const venues = services.map(service => this.normalizeService(service));
+
+        return {
+            success: true,
+            data: venues
+        };
+    }
+
+    /**
+     * 正規化單一服務資料
+     */
+    normalizeService(service) {
+        const location = service.location || {};
+        
+        return {
+            id: service.id || `service_${Date.now()}`,
+            name: service.name || '未知店家',
+            category: this.mapServiceCategoryToFrontend(service.category),
+            lat: location.latitude,
+            lng: location.longitude,
+            rating: service.rating || 0,
+            reviewCount: service.reviews_count || 0,
+            isOpen: true, // services API 沒有提供營業狀態
+            address: service.address || '',
+            phone: service.phone || '',
+            hours: service.opening_hours || '營業時間未知',
+            distance: service.distance || 0
+        };
+    }
+
     normalizePlace(place) {
         if (!place) return null;
 
@@ -278,6 +318,42 @@ class ApiService {
         }
 
         return candidates[0] || 'other';
+    }
+
+    /**
+     * 將前端分類對應到後端 services API 的分類
+     */
+    mapCategoryToServiceCategory(category) {
+        const mapping = {
+            restaurant: '餐廳',
+            cafe: '咖啡廳',
+            convenience: '便利商店',
+            gas: '加油站',
+            salon: '美容美髮',
+            pharmacy: '藥局',
+            bakery: '烘焙坊',
+            gym: '健身房',
+            bookstore: '書店'
+        };
+        return mapping[category] || '餐廳'; // 預設為餐廳
+    }
+
+    /**
+     * 將後端 services API 的分類對應回前端分類
+     */
+    mapServiceCategoryToFrontend(serviceCategory) {
+        const mapping = {
+            '餐廳': 'restaurant',
+            '咖啡廳': 'cafe',
+            '便利商店': 'convenience',
+            '加油站': 'gas',
+            '美容美髮': 'salon',
+            '藥局': 'pharmacy',
+            '烘焙坊': 'bakery',
+            '健身房': 'gym',
+            '書店': 'bookstore'
+        };
+        return mapping[serviceCategory] || 'restaurant';
     }
 
     // ==================== 使用者相關 API（可選）====================
